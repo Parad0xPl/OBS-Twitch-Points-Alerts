@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>TPA</title>
+    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="lib/bootstrap.min.css">
+    <style>
+        body {
+            width: 100%;
+            min-height: 100vh;
+            padding: 1em;
+        }
+        #main {
+            width: 100%;
+        }
+        .row {
+            margin: 0;
+        }
+
+        #settOAuthToken {
+            display: inline-block; 
+            width: calc( 100% - 105px )
+        }
+        #settGetToken {
+            width: 100px;
+            float: right;
+        }
+
+        #alerts > form {
+            margin-bottom: 1em;
+        }
+
+        .btn-remove {
+            width: 85px;
+        }
+        .btn-test {
+            width: 55px;
+        }
+
+        .custom-file {
+            width: calc( 100% - 155px )
+        }
+
+        .form-btns {
+            float:right;
+            width: 145px;
+        }
+    </style>
+</head>
+<body>
+    <div id="main">
+        <div class="row">
+            <h3>Settings</h3>
+            <form id="sett" class="col-12">
+                <div class="form-row">
+                    <div class="form-group col-12">
+                        <label for="settClientToken">Twitch Client ID</label>
+                        <input type="text" class="form-control" id="settClientToken">
+                    </div>
+                    <div class="form-group col-12" style="margin-bottom: 0;">
+                        <label for="settOAuthToken" style="display: block;">Twitch OAuth Token</label>
+                    </div>
+                    <div class="form-group col-12 align-items-center">
+                        <input type="text" class="form-control" id="settOAuthToken" readonly>
+                        <button class="btn btn-primary" id="settGetToken">Get token</button>
+                    </div>
+                    <div class="form-group col-12">
+                        <label for="settChannel">Channel</label>
+                        <input type="text" class="form-control" id="settChannel">
+                    </div>
+                    <div class="form-group col-12">
+                        <label for="settPort">Port</label>
+                        <input type="text" class="form-control" id="settPort">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" id="settSave">Save</button>
+                </div>
+            </form>
+        </div>
+        <div>
+            <p>
+                Twitch Connection: <span id="twitchStatus"></span> <button id="twitchstartstop" class="btn btn-primary">Start/Stop</button>
+            </p>
+            <p>
+                WebSocket Server Connection: <span id="wssStatus"></span> <button id="wssstartstop" class="btn btn-primary">Start/Stop</button>
+            </p>
+        </div>
+        <h3>Alerts</h3>
+        <div class="row" id="alerts">
+        </div>
+        <button id="addAlert">Add</button>
+    </div>
+    <script src="lib/jquery-3.4.1.slim.min.js"></script>
+    <script src="lib/popper.min.js"></script>
+    <script src="lib/bootstrap.min.js"></script>
+    <script src="../dst/web/main.js"></script>
+</body>
+</html>

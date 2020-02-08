@@ -1,0 +1,31 @@
+{
+  "name": "twich-points-alerts",
+  "version": "0.1.0",
+  "description": "Simple solution to play mp4 on stream triggered by twitch points",
+  "main": "dst/main.js",
+  "build": {
+    "productName": "TPA",
+    "appId": "parad0x.tpa",
+    "win": {
+      "target": ["portable"]
+    }
+  },
+  "scripts": {
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": [],
+  "author": "Parad0xPl",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^12.12.26",
+    "@types/ws": "^7.2.1",
+    "electron": "^7.1.11",
+    "electron-builder": "^22.3.2",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.5"
+  },
+  "dependencies": {
+    "ws": "^7.2.1"
+  }
+}
