@@ -88,6 +88,14 @@ window.addEventListener("DOMContentLoaded", () => {
     // }, 10000)
   })
 
+  let twitchError = document.getElementById("twitchError");
+  twitch.on("error", (msg)=>{
+    twitchError.innerText = msg;
+  })
+  twitch.on("start", ()=>{
+    twitchError.innerText = "";
+  })
+
   wssstartstopButton.addEventListener("click", e => {
     console.log("Start stop");
     if(wss.status()){

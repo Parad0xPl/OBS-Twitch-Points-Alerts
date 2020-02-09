@@ -7,6 +7,7 @@ let mainWindow: Electron.BrowserWindow | null;
 function createWindow() {
   mainWindow = new BrowserWindow({
     minWidth: 500,
+    minHeight: 600,
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, "web/preload.js"),
@@ -63,6 +64,11 @@ ipcMain.on('twitch-oauth', (event, arg) => {
 });
 
 let fileLock = false;
+
+ipcMain.on("getSettingsPath", (ev, filename: string) => {
+  let userData = path.resolve(app.getPath("userData"), filename);
+  ev.returnValue = userData;
+});
 
 ipcMain.on("chooseFile", (ev, id: string)=>{
   if(fileLock){

@@ -1,5 +1,6 @@
 import Twitch from "./TwitchPubSug";
-import electron, { ipcMain, ipcRenderer } from "electron";
+import electron, { ipcRenderer } from "electron";
+import path from "path";
 
 let template = (id: string, instance: AlertFront) => {
     let template = `
@@ -112,7 +113,7 @@ class AlertFront {
             reward.value = obj[key].rewardtitle;
             let filepath = el.querySelector("#filepath") as HTMLInputElement;
             if(obj[key].filepath){
-                filepath.innerText = obj[key].filepath;
+                filepath.innerText = path.basename(obj[key].filepath);
             }else{
                 filepath.innerText = "Choose File";
             }

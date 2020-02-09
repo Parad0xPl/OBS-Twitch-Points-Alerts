@@ -39,7 +39,7 @@ export interface ResponseEvent {
     nonce?: string
 }
 export interface MesageEvent {
-    type: "RESPONSE",
+    type: "MESSAGE",
     data: {
         message: string,
         topic: string
@@ -50,8 +50,12 @@ export type TwitchEvent = MesageEvent & ResponseEvent
 
 declare interface Twitch {
     on(event: "reward", listner: (reward: PointsRedeemed)=>void): this;
+    on(event: "error", listner: (msg: string)=>void): this;
+    on(event: "start", listner: ()=>void): this;
 
     emit(event: "reward", reward: PointsRedeemed): boolean;
+    emit(event: "error", msg: string): boolean;
+    emit(event: "start"): boolean;
 }
 
 class Twitch extends EventEmitter{
@@ -69,8 +73,12 @@ class Twitch extends EventEmitter{
     }
 
     async spawn(): Promise<WS>{
-
-        let translateID = await translateTwitchUser(window.settings.options.channel);
+        let translateID:string = "";
+        try{
+            translateID = await translateTwitchUser(window.settings.options.channel);
+        }catch(e){
+            this.emit("error", "Can't translate username to id");
+        }
         if(translateID == ""){
             throw new Error(`There is no user with nickname ${window.settings.options.channel}`);
         }
@@ -99,12 +107,12 @@ class Twitch extends EventEmitter{
             }));
         })
         ws.on("message", (data)=>{
-            console.log(data);
             console.log("Data:");
             let dataObj = JSON.parse(data.toString()) as TwitchEvent;
             console.log(dataObj);
             if(dataObj.type == "RESPONSE"){
                 if(dataObj.error != ""){
+                    this.emit("error", dataObj.error);
                     this.stop();
                 }
             }else if(dataObj.type == "MESSAGE"){
@@ -113,6 +121,8 @@ class Twitch extends EventEmitter{
                     this.emit("reward", message.data);
                 }
 
+            }else if(dataObj.type == "PONG"){
+                this.stats.pongCounter++;
             }else{
                 console.log("Unsupported event");
             }
@@ -129,7 +139,10 @@ class Twitch extends EventEmitter{
     start(){
         if(!this.ws){
             this.spawn().then(ws => {
+                this.emit("start");
                 this.ws = ws;
+            }).catch(e => {
+                this.emit("error", e);
             });
         }
     }

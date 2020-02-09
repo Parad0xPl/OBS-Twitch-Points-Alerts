@@ -44,6 +44,9 @@
         .custom-file {
             width: calc( 100% - 155px )
         }
+        #filepath {
+            overflow: hidden;
+        }
 
         .form-btns {
             float:right;
@@ -84,7 +87,7 @@
         </div>
         <div>
             <p>
-                Twitch Connection: <span id="twitchStatus"></span> <button id="twitchstartstop" class="btn btn-primary">Start/Stop</button>
+                Twitch Connection: <span id="twitchStatus"></span> <button id="twitchstartstop" class="btn btn-primary">Start/Stop</button> <span id="twitchError" class="error-mesage"></span>
             </p>
             <p>
                 WebSocket Server Connection: <span id="wssStatus"></span> <button id="wssstartstop" class="btn btn-primary">Start/Stop</button>
@@ -93,7 +96,8 @@
         <h3>Alerts</h3>
         <div class="row" id="alerts">
         </div>
-        <button id="addAlert">Add</button>
+        <button id="addAlert" class="btn btn-success">Add</button>
+        <button id="saveAlert" class="btn btn-primary">Save</button>
     </div>
     <script src="lib/jquery-3.4.1.slim.min.js"></script>
     <script src="lib/popper.min.js"></script>

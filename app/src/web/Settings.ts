@@ -1,6 +1,7 @@
-import { writeFileSync, readFileSync, existsSync } from "fs"
+import { writeFileSync, readFileSync, existsSync, fstat, copyFileSync } from "fs"
 import { resolve } from "path";
 import { isArray } from "util";
+import electron, { ipcMain, ipcRenderer } from "electron";
 
 function isSameKeys(o: Object, keys: Set<string>){
     let objectkeys = Object.keys(o);
@@ -48,9 +49,23 @@ class Settings {
         channel: "",
         alerts: {}
     };
-    constructor(private filename = "settings.json"){
-        this.filename = resolve(process.cwd(), this.filename);
+    filename: string;
+    constructor(filename = "settings.json"){
+        this.filename = this.getPath(filename);
+        this.moveOldConfig(filename);
         this.load();
+    }
+
+    moveOldConfig(filename: string){
+        let localSettings = resolve(process.cwd(), filename);
+        if(existsSync(localSettings) && !existsSync(this.filename)){
+            copyFileSync(localSettings, this.filename);
+        }
+    }
+
+    getPath(filename: string):string{
+        let path:string = ipcRenderer.sendSync("getSettingsPath", filename);
+        return path;
     }
 
     /**
@@ -122,6 +137,31 @@ export function initForm(settings: Settings){
 
     let saceForm = document.getElementById("sett");
     saceForm.addEventListener("submit", function(e){
+        // Twitch Token
+        settings.options.twitch_client_id = inputs.ClientTID.value;
+        settings.options.channel = inputs.Channel.value;
+
+        // Port
+        let port: number = parseInt(inputs.Port.value);
+        if(!isNaN(port) && port > 0 && port < 65535){
+            settings.options.port = port;
+            inputs.Port.value = port.toString();
+        }else{
+            console.log("Wrong value for port");
+            inputs.Port.value = settings.options.port.toString();
+            // TODO: Some error box
+        }
+
+        // All setted
+        settings.save();
+        settings.updateView();
+
+        e.preventDefault();
+        return false;
+    });
+
+    let saveAlert = document.getElementById("saveAlert");
+    saveAlert.addEventListener("click", function(e){
         // Twitch Token
         settings.options.twitch_client_id = inputs.ClientTID.value;
         settings.options.channel = inputs.Channel.value;
