@@ -1,5 +1,5 @@
 import WS from "ws"
-import translateTwitchUser from "./translateTwitchUser";
+import translateTwitchUser from "./utils/translateTwitchUser";
 import { EventEmitter } from "events"
 import { runInThisContext } from "vm";
 
