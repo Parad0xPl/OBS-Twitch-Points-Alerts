@@ -1,6 +1,7 @@
 import WS from "ws"
 import translateTwitchUser from "./translateTwitchUser";
 import { EventEmitter } from "events"
+import { runInThisContext } from "vm";
 
 export interface PointsRedeemed {
     timestamp: string;
@@ -65,8 +66,14 @@ class Twitch extends EventEmitter{
     }
 
     ws?: WS;
-    pingInterval: NodeJS.Timeout;
-    button?:HTMLElement;
+    private pingInterval: NodeJS.Timeout;
+
+    private interval?: NodeJS.Timeout;
+
+    private inputs: {
+        StartStopButton?: HTMLButtonElement,
+        ErrStatus?: HTMLElement
+    } = {};
 
     constructor(){
         super();
@@ -161,8 +168,32 @@ class Twitch extends EventEmitter{
         return false;
     }
 
-    bindButton(btn: HTMLElement){
-        this.button = btn;
+    bind(
+        StaStoBtn: HTMLButtonElement,
+        ErrStatus: HTMLElement
+    ){
+        this.inputs.StartStopButton = StaStoBtn;
+        this.inputs.ErrStatus = ErrStatus;
+
+        this.on("error", (msg)=>{
+          this.inputs.ErrStatus.innerText = msg;
+        })
+        this.on("start", ()=>{
+          this.inputs.ErrStatus.innerText = "";
+        })
+
+        this.inputs.StartStopButton.addEventListener("click", e => {
+            console.log("Start stop");
+            if(this.status()){
+              this.stop();
+            }else{
+              this.start();
+            }
+          })
+
+        let refresher = () => this.updateElement();
+        this.interval = setInterval(refresher, 1000);
+        setTimeout(refresher, 0);
     }
 
     updateElement(){
@@ -170,13 +201,13 @@ class Twitch extends EventEmitter{
         if(this.status()){
             status.innerText = "Online";
             status.style.color = "Green";
-            if(this.button)
-                this.button.innerText = "Stop";
+            if(this.inputs.StartStopButton)
+                this.inputs.StartStopButton.innerText = "Stop";
         }else{
             status.innerText = "Offline";
             status.style.color = "red";
-            if(this.button)
-                this.button.innerText = "Start";
+            if(this.inputs.StartStopButton)
+                this.inputs.StartStopButton.innerText = "Start";
         }
     }
 }

@@ -29,12 +29,6 @@
     <script>
         let video = document.querySelector("video");
         video.volume = 0.2;
-        // setTimeout(()=>{
-        //     video.play()
-        // }, 1500)
-        video.addEventListener("ended", ()=>{
-            video.src = "";
-        })
     </script>
     <h2 id="ran">
         Random text
@@ -79,6 +73,10 @@
                 }
             }
         };
+        video.addEventListener("ended", ()=>{
+            video.src = "";
+            ws.send('{action:"end"}');
+        })
     </script>
     <script>
         setInterval(()=>{

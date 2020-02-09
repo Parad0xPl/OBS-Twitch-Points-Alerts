@@ -2,6 +2,7 @@ import { writeFileSync, readFileSync, existsSync, fstat, copyFileSync } from "fs
 import { resolve } from "path";
 import { isArray } from "util";
 import electron, { ipcMain, ipcRenderer } from "electron";
+import { throws } from "assert";
 
 function isSameKeys(o: Object, keys: Set<string>){
     let objectkeys = Object.keys(o);
@@ -50,6 +51,16 @@ class Settings {
         alerts: {}
     };
     filename: string;
+
+    private inputs: {
+        ClientID?:HTMLInputElement,
+        OAuthToken?:HTMLInputElement,
+        Port?:HTMLInputElement,
+        Channel?:HTMLInputElement,
+        SaveButton?:HTMLButtonElement,
+        AlertButton?:HTMLButtonElement
+    } = {};
+
     constructor(filename = "settings.json"){
         this.filename = this.getPath(filename);
         this.moveOldConfig(filename);
@@ -110,78 +121,78 @@ class Settings {
         }
     }
     
+    bind(
+        ClientID:HTMLInputElement,
+        OAuthToken:HTMLInputElement,
+        Port:HTMLInputElement,
+        Channel:HTMLInputElement,
+        SaveButton:HTMLButtonElement,
+        AlertButton:HTMLButtonElement
+    ){
+        this.inputs.ClientID = ClientID;
+        this.inputs.OAuthToken = OAuthToken;
+        this.inputs.Port = Port;
+        this.inputs.Channel = Channel;
+        this.inputs.SaveButton = SaveButton;
+        this.inputs.AlertButton = AlertButton;
+
+        this.updateView();
+
+        this.inputs.SaveButton.addEventListener("click", (e)=>{
+            // Twitch Token
+            this.options.twitch_client_id = this.inputs.ClientID.value;
+            this.options.channel = this.inputs.Channel.value;
+    
+            // Port
+            let port: number = parseInt(this.inputs.Port.value);
+            if(!isNaN(port) && port > 0 && port < 65535){
+                this.options.port = port;
+                this.inputs.Port.value = port.toString();
+            }else{
+                console.log("Wrong value for port");
+                this.inputs.Port.value = this.options.port.toString();
+                // TODO: Some error box
+            }
+    
+            // All setted
+            this.save();
+            this.updateView();
+    
+            e.preventDefault();
+            return false;
+        });
+
+        this.inputs.AlertButton.addEventListener("click", (e)=>{
+            // Twitch Token
+            this.options.twitch_client_id = this.inputs.ClientID.value;
+            this.options.channel = this.inputs.Channel.value;
+      
+            // Port
+            let port: number = parseInt(this.inputs.Port.value);
+            if(!isNaN(port) && port > 0 && port < 65535){
+                this.options.port = port;
+                this.inputs.Port.value = port.toString();
+            }else{
+                console.log("Wrong value for port");
+                this.inputs.Port.value = this.options.port.toString();
+                // TODO: Some error box
+            }
+      
+            // All setted
+            this.save();
+            this.updateView();
+      
+            e.preventDefault();
+            return false;
+        });
+    }
+
     updateView(){
-        inputs.ClientTID.value = this.options.twitch_client_id
-        inputs.Port.value = this.options.port.toString()
-        inputs.OAuthToken.value = this.options.twitch_oauth_token;
-        inputs.Channel.value = this.options.channel;
+        this.inputs.ClientID.value = this.options.twitch_client_id
+        this.inputs.Port.value = this.options.port.toString()
+        this.inputs.OAuthToken.value = this.options.twitch_oauth_token;
+        this.inputs.Channel.value = this.options.channel;
     }
 }
 
 export default Settings
-
-const inputs: {
-    ClientTID?:HTMLInputElement,
-    OAuthToken?:HTMLInputElement,
-    Port?:HTMLInputElement,
-    Channel?:HTMLInputElement
-} = {}
-
-export function initForm(settings: Settings){
-    inputs.ClientTID = document.getElementById("settClientToken") as HTMLInputElement;
-    inputs.OAuthToken = document.getElementById("settOAuthToken") as HTMLInputElement;
-    inputs.Port = document.getElementById("settPort") as HTMLInputElement;
-    inputs.Channel = document.getElementById("settChannel") as HTMLInputElement;
-
-    settings.updateView();
-
-    let saceForm = document.getElementById("sett");
-    saceForm.addEventListener("submit", function(e){
-        // Twitch Token
-        settings.options.twitch_client_id = inputs.ClientTID.value;
-        settings.options.channel = inputs.Channel.value;
-
-        // Port
-        let port: number = parseInt(inputs.Port.value);
-        if(!isNaN(port) && port > 0 && port < 65535){
-            settings.options.port = port;
-            inputs.Port.value = port.toString();
-        }else{
-            console.log("Wrong value for port");
-            inputs.Port.value = settings.options.port.toString();
-            // TODO: Some error box
-        }
-
-        // All setted
-        settings.save();
-        settings.updateView();
-
-        e.preventDefault();
-        return false;
-    });
-
-    let saveAlert = document.getElementById("saveAlert");
-    saveAlert.addEventListener("click", function(e){
-        // Twitch Token
-        settings.options.twitch_client_id = inputs.ClientTID.value;
-        settings.options.channel = inputs.Channel.value;
-
-        // Port
-        let port: number = parseInt(inputs.Port.value);
-        if(!isNaN(port) && port > 0 && port < 65535){
-            settings.options.port = port;
-            inputs.Port.value = port.toString();
-        }else{
-            console.log("Wrong value for port");
-            inputs.Port.value = settings.options.port.toString();
-            // TODO: Some error box
-        }
-
-        // All setted
-        settings.save();
-        settings.updateView();
-
-        e.preventDefault();
-        return false;
-    });
-}
