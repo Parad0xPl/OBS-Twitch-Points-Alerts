@@ -58,7 +58,9 @@
     <div id="main">
         <div class="row">
             <h3>Settings</h3>
-            <form id="sett" class="col-12">
+            <a id="hideButton" data-toggle="collapse" data-target="#sett" style="padding: 5px">
+            </a>
+            <form id="sett" class="col-12 show">
                 <div class="form-row">
                     <div class="form-group col-12">
                         <label for="settClientToken">Twitch Client ID</label>
@@ -102,6 +104,24 @@
     <script src="lib/jquery-3.4.1.slim.min.js"></script>
     <script src="lib/popper.min.js"></script>
     <script src="lib/bootstrap.min.js"></script>
+    <script src="lib/feather.min.js"></script>
     <script src="../dst/web/main.js"></script>
+    <script>
+        let col2 = $("#sett");
+        let button = document.getElementById("hideButton");
+        let svgOptions = {
+            class: "align-middle"
+        };
+        button.innerHTML = feather.icons['chevron-up'].toSvg(svgOptions);
+        col2.on("show.bs.collapse", ()=>{
+            console.log("Show 2");
+            button.innerHTML = feather.icons['chevron-up'].toSvg(svgOptions);
+        })
+        col2.on("hide.bs.collapse", ()=>{
+            console.log("Hide 2");
+            button.innerHTML = feather.icons['chevron-down'].toSvg(svgOptions);
+        })
+        feather.replace()
+    </script>
 </body>
 </html>
