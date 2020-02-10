@@ -3,6 +3,8 @@ import Twitch from "./TwitchPubSug"
 import { ipcRenderer } from "electron"
 import WebSocketServer from "./WSServer";
 import AlertFront from "./AlertFront";
+import Queue, { AlertElement } from "./AlertQueue";
+import generateID from "./utils/generateid";
 
 let settings = window.settings = new Settings()
 
@@ -10,6 +12,26 @@ const twitch = new Twitch();
 const wss = new WebSocketServer();
 
 wss.start();
+
+
+const AlertQueue = new Queue<AlertElement>();
+
+function sendPath(path: string){
+  wss.sendToAll(JSON.stringify([
+    {
+      cmd: "src",
+      src: path
+    },
+    {
+      cmd: "start"
+    }
+  ]));
+}
+
+AlertQueue.on("add", ()=>{
+  let el = AlertQueue.remove();
+  sendPath(el.filepath);
+})
 
 let Alerts: AlertFront | undefined;
 
@@ -61,16 +83,15 @@ window.addEventListener("DOMContentLoaded", () => {
     for(let key in al){
       if(al.hasOwnProperty(key)){
         if(al[key].rewardtitle === reward.redemption.reward.title){
-          console.log("Trigering:", al[key].rewardtitle);
-          wss.sendToAll(JSON.stringify([
-            {
-              cmd: "src",
-              src: al[key].filepath
-            },
-            {
-              cmd: "start"
-            }
-          ]));
+          let newid = generateID(12);
+          AlertQueue.add({
+            filepath: al[key].filepath,
+            id: newid,
+            rewardEvent: reward
+          })
+
+          // console.log("Trigering:", al[key].rewardtitle);
+          // sendPath(al[key].filepath);
         }
       }
     }
