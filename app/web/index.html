@@ -60,7 +60,7 @@
             <h3>Settings</h3>
             <a id="hideButton" data-toggle="collapse" data-target="#sett" style="padding: 5px">
             </a>
-            <form id="sett" class="col-12 show">
+            <form id="sett" class="col-12 collapse">
                 <div class="form-row">
                     <div class="form-group col-12">
                         <label for="settClientToken">Twitch Client ID</label>
@@ -104,27 +104,40 @@
         <button id="abortAlert" class="btn btn-danger">Abort</button>
         <h3>Queue length: <span id="queueCounter"></span></h3>
     </div>
-    <script src="lib/jquery-3.4.1.slim.min.js"></script>
-    <script src="lib/popper.min.js"></script>
-    <script src="lib/bootstrap.min.js"></script>
     <script src="lib/feather.min.js"></script>
-    <script src="../dst/web/main.js"></script>
+    <script src="lib/jquery-3.4.1.slim.min.js"></script>
     <script>
         let col2 = $("#sett");
+        let isSettingsHidden = localStorage.getItem("isSettingsHidden") == "true";
         let button = document.getElementById("hideButton");
         let svgOptions = {
             class: "align-middle"
         };
-        button.innerHTML = feather.icons['chevron-up'].toSvg(svgOptions);
+
+        console.log(isSettingsHidden);
+        if(!isSettingsHidden){
+            col2.addClass("show");
+        }
+
+        if(isSettingsHidden){
+            button.innerHTML = feather.icons['chevron-down'].toSvg(svgOptions);
+        }else{
+            button.innerHTML = feather.icons['chevron-up'].toSvg(svgOptions);
+        }
         col2.on("show.bs.collapse", ()=>{
             console.log("Show 2");
+            localStorage.setItem("isSettingsHidden", "false");
             button.innerHTML = feather.icons['chevron-up'].toSvg(svgOptions);
         })
         col2.on("hide.bs.collapse", ()=>{
             console.log("Hide 2");
+            localStorage.setItem("isSettingsHidden", "true");
             button.innerHTML = feather.icons['chevron-down'].toSvg(svgOptions);
         })
         feather.replace()
     </script>
+    <script src="lib/popper.min.js"></script>
+    <script src="lib/bootstrap.min.js"></script>
+    <script src="../dst/web/main.js"></script>
 </body>
 </html>
