@@ -5,27 +5,33 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
     <title>OBS Twitch Points Alerts</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <!-- <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
-    <script src='main.js'></script> -->
     <style>
+        body {
+            width: 100%;
+            height: 100%;
+        }
         * {
             color: white;
         }
         video {
             background-color: rgba(0, 0, 0, 0);
             height: 100vh;
+            margin: 0 auto;
+            display: block;
             z-index: -100;
         }
         h2 {
+            display: none;
             position: absolute;
             top: 5em;
             left: 5em;
             z-index: 100;
         }
     </style>
+
 </head>
 <body>
-    <video>
+    <video></video>
     <script>
         let video = document.querySelector("video");
         video.volume = 0.2;
@@ -41,6 +47,7 @@
     </script>
     <script>
         function parseCommand(cmdObject){
+            console.log(cmdObject.cmd);
             switch(cmdObject.cmd){
                 case "reload":
                     location.reload();
@@ -60,6 +67,21 @@
                         video.src=cmdObject.src
                     }
                     break;
+                case "videoInQueue":
+                    if(video.src == ""){
+                        ws.send(JSON.stringify({
+                            action: "waitingForVideo"
+                        }))
+                    }
+                    break;
+                case "abort":
+                    video.pause();
+                    video.src = "";
+                    video.removeAttribute("src");
+                    ws.send(JSON.stringify({
+                        action: "waitingForVideo"
+                    }))
+                    break;
             }
         }
 
@@ -75,7 +97,10 @@
         };
         video.addEventListener("ended", ()=>{
             video.src = "";
-            ws.send('{action:"end"}');
+            video.removeAttribute("src");
+            ws.send(JSON.stringify({
+                action: "ended"
+            }));
         })
     </script>
     <script>

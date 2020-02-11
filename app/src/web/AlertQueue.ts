@@ -18,6 +18,11 @@ interface Queue<T> {
 class Queue<T> extends EventEmitter {
     private arr: T[] = [];
 
+    private inputs: {
+        counter?: HTMLElement,
+        addButton?: HTMLButtonElement,
+        abortButton?: HTMLButtonElement
+    } = {};
     first(): T{
         return this.arr[0];
     }
@@ -33,8 +38,24 @@ class Queue<T> extends EventEmitter {
         return el;
     }
 
+    empty() {
+        this.arr = [];
+    }
+
     len(){
         return this.arr.length;
+    }
+    
+    bind(
+        counter: HTMLElement
+    ){
+        this.inputs.counter = counter;
+    }
+
+    updateView(){
+        if(this.inputs.counter){
+            this.inputs.counter.innerText = this.len().toString();
+        }
     }
 }
 

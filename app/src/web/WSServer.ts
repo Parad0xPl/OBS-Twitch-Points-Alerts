@@ -1,12 +1,25 @@
 import ws from "ws";
+import { EventEmitter } from "events";
 
 interface EndEvent {
-    action: "end"
+    action: "ended"
 }
 
-type ClientMessage = EndEvent
+interface WaitingForVideoEvent {
+    action: "waitingForVideo"
+}
 
-class WebSocketServer {
+type ClientMessage = EndEvent | WaitingForVideoEvent
+
+interface WebSocketServer {
+    on(event: "ended", listener: ()=>void): this;
+    on(event: "waitingForVideo", listener: ()=>void): this;
+
+    emit(event: "ended"): boolean;
+    emit(event: "waitingForVideo"): boolean;
+}
+
+class WebSocketServer extends EventEmitter {
     server?: ws.Server;
 
     private interval?: NodeJS.Timeout;
@@ -15,6 +28,7 @@ class WebSocketServer {
     } = {};
 
     constructor(private port: number = 8045){
+        super();
         if(! (!isNaN(port) && port > 0 && port < 65535)){
             throw new Error("Malicious port")
         }
@@ -60,7 +74,26 @@ class WebSocketServer {
     }
 
     connectionHandler(rawMsg: string){
-        let msg: ClientMessage = JSON.parse(rawMsg);
+        let msg: ClientMessage;
+        try {
+            msg= JSON.parse(rawMsg);
+        } catch (error) {
+            console.log("Error while parsing incoming message");
+            console.log(error);
+            console.log(rawMsg);
+            return;
+        }
+        switch (msg.action) {
+            case "ended":
+                this.emit("ended");
+                break;
+            case "waitingForVideo":
+                this.emit("waitingForVideo");
+                break;
+            default:
+                break;
+        }
+        
     }
 
     bind(

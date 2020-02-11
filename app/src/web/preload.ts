@@ -28,9 +28,28 @@ function sendPath(path: string){
   ]));
 }
 
+wss.on("waitingForVideo", ()=>{
+  if(AlertQueue.len() > 0){
+    let el = AlertQueue.remove();
+    sendPath(el.filepath);
+  }
+})
+wss.on("ended", ()=>{
+  if(AlertQueue.len() > 0){
+    let el = AlertQueue.remove();
+    sendPath(el.filepath);
+  }
+})
+
+AlertQueue.on("remove", ()=>{
+  AlertQueue.updateView();
+})
+
 AlertQueue.on("add", ()=>{
-  let el = AlertQueue.remove();
-  sendPath(el.filepath);
+  AlertQueue.updateView();
+  wss.sendToAll(JSON.stringify([{
+    cmd: "videoInQueue"
+  }]))
 })
 
 let Alerts: AlertFront | undefined;
@@ -50,6 +69,11 @@ window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("settSave") as HTMLButtonElement,
     document.getElementById("saveAlert") as HTMLButtonElement
   )
+
+  AlertQueue.bind(
+    document.getElementById("queueCounter")
+  )
+  AlertQueue.updateView();
 
   Alerts = new AlertFront(twitch);
   Alerts.updateView();
@@ -71,7 +95,6 @@ window.addEventListener("DOMContentLoaded", () => {
   })
 
   ipcRenderer.on("twitch-oauth", (event, authcode: string)=>{
-    console.log(authcode);
     settings.options.twitch_oauth_token = authcode;
     settings.save();
     settings.updateView();
@@ -79,7 +102,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   twitch.on("reward", (reward) => {
     let al = settings.options.alerts;
-    console.log("Reward");
     for(let key in al){
       if(al.hasOwnProperty(key)){
         if(al[key].rewardtitle === reward.redemption.reward.title){
@@ -100,5 +122,19 @@ window.addEventListener("DOMContentLoaded", () => {
   let addAlertButton = document.getElementById("addAlert");
   addAlertButton.addEventListener("click", e => {
     Alerts.add();
+  })
+  let abortAlertButton = document.getElementById("abortAlert");
+  abortAlertButton.addEventListener("click", e => {
+    AlertQueue.empty();
+    AlertQueue.updateView();
+    wss.sendToAll(JSON.stringify([{
+      cmd: "abort"
+    }]))
+  })
+  let skipAlertButton = document.getElementById("skipAlert");
+  skipAlertButton.addEventListener("click", e => {
+    wss.sendToAll(JSON.stringify([{
+      cmd: "abort"
+    }]))
   })
 });
