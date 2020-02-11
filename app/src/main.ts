@@ -20,7 +20,9 @@ function createWindow() {
   });
   mainWindow.setMenu(null);
 
-  mainWindow.webContents.openDevTools();
+  if(process.env.DEVTOOLS == "true"){
+    mainWindow.webContents.openDevTools();
+  }
   mainWindow.loadFile(path.join(__dirname, "../web/index.html"));
   mainWindow.on("closed", () => {
     mainWindow = null;
