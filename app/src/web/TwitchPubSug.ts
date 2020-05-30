@@ -46,8 +46,11 @@ export interface MesageEvent {
         topic: string
     }
 }
+export interface PongEvent {
+    type: "PONG"
+}
 
-export type TwitchEvent = MesageEvent & ResponseEvent
+export type TwitchEvent = MesageEvent | ResponseEvent | PongEvent
 
 declare interface Twitch {
     on(event: "reward", listner: (reward: PointsRedeemed)=>void): this;

@@ -7,7 +7,7 @@ export default async function translateTwitchUser(user: string): Promise<string>
         method: "GET",
         headers: {
             "Client-ID": window.settings.options.twitch_client_id,
-            "Authorization": "OAuth "+window.settings.options.twitch_oauth_token
+            "Authorization": "Bearer "+window.settings.options.twitch_oauth_token
         }
     });
     let userData = await response.json();
