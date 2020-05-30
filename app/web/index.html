@@ -23,11 +23,17 @@
 
         #settOAuthToken {
             display: inline-block; 
-            width: calc( 100% - 105px )
+            width: calc( 100% - 170px )
         }
         #settGetToken {
             width: 100px;
             float: right;
+        }
+
+        #settShowToken {
+            width: 60px;
+            float: right;
+            margin-right: 5px;
         }
 
         #alerts > form {
@@ -70,8 +76,9 @@
                         <label for="settOAuthToken" style="display: block;">Twitch OAuth Token</label>
                     </div>
                     <div class="form-group col-12 align-items-center">
-                        <input type="text" class="form-control" id="settOAuthToken" readonly>
+                        <input type="password" class="form-control" id="settOAuthToken" readonly>
                         <button class="btn btn-primary" id="settGetToken">Get token</button>
+                        <button class="btn btn-danger" id="settShowToken">Show</button>
                     </div>
                     <div class="form-group col-12">
                         <label for="settChannel">Channel</label>
@@ -108,11 +115,33 @@
     <script src="lib/jquery-3.4.1.slim.min.js"></script>
     <script>
         let col2 = $("#sett");
+        col2.submit(e => {
+            e.preventDefault();
+        })
         let isSettingsHidden = localStorage.getItem("isSettingsHidden") == "true";
         let button = document.getElementById("hideButton");
         let svgOptions = {
             class: "align-middle"
         };
+
+        // Showing token
+        let oauthFormInput = document.getElementById("settOAuthToken");
+        let showButton = document.getElementById("settShowToken");
+        showButton.addEventListener("click", ()=>{
+            return false;
+        })
+        showButton.addEventListener("mousedown", ()=>{
+            oauthFormInput.setAttribute("type", "text");
+            return false;
+        })
+        showButton.addEventListener("mouseup", ()=>{
+            oauthFormInput.setAttribute("type", "password");
+            return false;
+        })
+        showButton.addEventListener("mouseleave", ()=>{
+            oauthFormInput.setAttribute("type", "password");
+            return false;
+        })
 
         console.log(isSettingsHidden);
         if(!isSettingsHidden){
