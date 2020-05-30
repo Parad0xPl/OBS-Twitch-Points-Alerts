@@ -84,7 +84,8 @@ window.addEventListener("DOMContentLoaded", () => {
   );
 
   wss.bind(
-    document.getElementById("wssstartstop") as HTMLButtonElement
+    document.getElementById("wssstartstop") as HTMLButtonElement,
+    document.getElementById("clientsAmountNumber") as HTMLSpanElement
   )
 
   let getTokenButton = document.getElementById("settGetToken");

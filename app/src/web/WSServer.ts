@@ -24,7 +24,8 @@ class WebSocketServer extends EventEmitter {
 
     private interval?: NodeJS.Timeout;
     private inputs: {
-        StartStopButton?: HTMLButtonElement
+        StartStopButton?: HTMLButtonElement,
+        ClientsAmountField?: HTMLSpanElement
     } = {};
 
     constructor(private port: number = 8045){
@@ -52,7 +53,8 @@ class WebSocketServer extends EventEmitter {
         }
         this.changePort(window.settings.options.port);
         this.server = new ws.Server({
-            port: this.port
+            port: this.port,
+            clientTracking: true
         });
 
         this.server.on("close", ()=>{
@@ -96,13 +98,22 @@ class WebSocketServer extends EventEmitter {
         
     }
 
+    clientsAmount(): number{
+        if(this.server){
+            return this.server.clients.size;
+        }
+        return 0;
+    }
+
     bind(
-        StaStoBtn: HTMLButtonElement
+        StaStoBtn: HTMLButtonElement,
+        ClientsAmountField: HTMLSpanElement
     ){
         this.inputs.StartStopButton = StaStoBtn;
+        this.inputs.ClientsAmountField = ClientsAmountField;
 
         let refresher = () => this.updateElement();
-        this.interval = setInterval(refresher, 1000);
+        this.interval = setInterval(refresher, 333);
         setTimeout(refresher, 0);
 
         this.inputs.StartStopButton.addEventListener("click", e => {
@@ -129,6 +140,9 @@ class WebSocketServer extends EventEmitter {
             if(this.inputs.StartStopButton)
                 this.inputs.StartStopButton.innerText = "Start";
         }
+
+        this.inputs.ClientsAmountField.textContent = 
+            this.clientsAmount().toString();
     }
 
     sendToAll(msg: string){
