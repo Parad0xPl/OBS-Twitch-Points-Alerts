@@ -4,6 +4,7 @@ import { EventEmitter } from "events";
 export type AlertElement = {
     filepath: string,
     id: string,
+    alertid: string,
     rewardEvent: PointsRedeemed,
 }
 

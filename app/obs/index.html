@@ -85,7 +85,7 @@
             }
         }
 
-        let ws = new WebSocket("ws://localhost:8045");
+        let ws = new WebSocket("ws://localhost:<$wsport$>");
         ws.onmessage = (msg)=>{
             let data = msg.data;
             let commandArray = JSON.parse(msg.data)

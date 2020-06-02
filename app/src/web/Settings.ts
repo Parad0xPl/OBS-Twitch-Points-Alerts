@@ -2,7 +2,6 @@ import { writeFileSync, readFileSync, existsSync, fstat, copyFileSync } from "fs
 import { resolve } from "path";
 import { isArray } from "util";
 import electron, { ipcMain, ipcRenderer } from "electron";
-import { throws } from "assert";
 
 function isSameKeys(o: Object, keys: Set<string>){
     let objectkeys = Object.keys(o);
@@ -27,7 +26,8 @@ const AlertKeys: Set<string> = new Set([
 export type SettingsData = {
     twitch_client_id: string,
     twitch_oauth_token: string,
-    port: number,
+    wsport: number,
+    httpport: number,
     channel: string,
     alerts: {
         [key: string]: Alert
@@ -35,7 +35,8 @@ export type SettingsData = {
 }
 
 const keys: Set<string> = new Set([
-    "port",
+    "wsport",
+    "httpport",
     "twitch_client_id",
     "twitch_oauth_token",
     "channel",
@@ -46,7 +47,8 @@ class Settings {
     options: SettingsData = {
         twitch_client_id: "",
         twitch_oauth_token: "",
-        port: 8045,
+        wsport: 8045,
+        httpport: 8050,
         channel: "",
         alerts: {}
     };
@@ -55,7 +57,8 @@ class Settings {
     private inputs: {
         ClientID?:HTMLInputElement,
         OAuthToken?:HTMLInputElement,
-        Port?:HTMLInputElement,
+        WSPort?:HTMLInputElement,
+        HTTPPort?:HTMLInputElement,
         Channel?:HTMLInputElement,
         SaveButton?:HTMLButtonElement,
         AlertButton?:HTMLButtonElement
@@ -124,14 +127,16 @@ class Settings {
     bind(
         ClientID:HTMLInputElement,
         OAuthToken:HTMLInputElement,
-        Port:HTMLInputElement,
+        WSPort:HTMLInputElement,
+        HTTPPort:HTMLInputElement,
         Channel:HTMLInputElement,
         SaveButton:HTMLButtonElement,
         AlertButton:HTMLButtonElement
     ){
         this.inputs.ClientID = ClientID;
         this.inputs.OAuthToken = OAuthToken;
-        this.inputs.Port = Port;
+        this.inputs.WSPort = WSPort;
+        this.inputs.HTTPPort = HTTPPort;
         this.inputs.Channel = Channel;
         this.inputs.SaveButton = SaveButton;
         this.inputs.AlertButton = AlertButton;
@@ -143,14 +148,28 @@ class Settings {
             this.options.twitch_client_id = this.inputs.ClientID.value;
             this.options.channel = this.inputs.Channel.value;
     
-            // Port
-            let port: number = parseInt(this.inputs.Port.value);
-            if(!isNaN(port) && port > 0 && port < 65535){
-                this.options.port = port;
-                this.inputs.Port.value = port.toString();
+            // WSPort
+            let wsport: number = parseInt(this.inputs.WSPort.value);
+            if(!isNaN(wsport) && wsport > 0 && wsport < 65535){
+                this.options.wsport = wsport;
+                this.inputs.WSPort.value = wsport.toString();
             }else{
-                console.log("Wrong value for port");
-                this.inputs.Port.value = this.options.port.toString();
+                console.log("Wrong value for wsport");
+                this.inputs.WSPort.value = this.options.wsport.toString();
+                // TODO: Some error box
+            }
+
+            // HTTP Port
+            let httpport: number = parseInt(this.inputs.HTTPPort.value);
+            if(!isNaN(httpport) && httpport > 0 && httpport < 65535){
+                if(this.options.httpport != httpport){
+                    window.httpserver.setPort(httpport);
+                }
+                this.options.httpport = httpport;
+                this.inputs.HTTPPort.value = httpport.toString();
+            }else{
+                console.log("Wrong value for httpport");
+                this.inputs.HTTPPort.value = this.options.httpport.toString();
                 // TODO: Some error box
             }
     
@@ -168,13 +187,13 @@ class Settings {
             this.options.channel = this.inputs.Channel.value;
       
             // Port
-            let port: number = parseInt(this.inputs.Port.value);
+            let port: number = parseInt(this.inputs.WSPort.value);
             if(!isNaN(port) && port > 0 && port < 65535){
-                this.options.port = port;
-                this.inputs.Port.value = port.toString();
+                this.options.wsport = port;
+                this.inputs.WSPort.value = port.toString();
             }else{
                 console.log("Wrong value for port");
-                this.inputs.Port.value = this.options.port.toString();
+                this.inputs.WSPort.value = this.options.wsport.toString();
                 // TODO: Some error box
             }
       
@@ -189,7 +208,8 @@ class Settings {
 
     updateView(){
         this.inputs.ClientID.value = this.options.twitch_client_id
-        this.inputs.Port.value = this.options.port.toString()
+        this.inputs.WSPort.value = this.options.wsport.toString()
+        this.inputs.HTTPPort.value = this.options.httpport.toString()
         this.inputs.OAuthToken.value = this.options.twitch_oauth_token;
         this.inputs.Channel.value = this.options.channel;
     }

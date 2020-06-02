@@ -51,7 +51,7 @@ class WebSocketServer extends EventEmitter {
             console.log("Trying to start websocket when it is already running");
             return
         }
-        this.changePort(window.settings.options.port);
+        this.changePort(window.settings.options.wsport);
         this.server = new ws.Server({
             port: this.port,
             clientTracking: true
@@ -121,7 +121,7 @@ class WebSocketServer extends EventEmitter {
           if(this.status()){
             this.stop();
           }else{
-            this.changePort(window.settings.options.port)
+            this.changePort(window.settings.options.wsport)
             this.start();
           }
         })

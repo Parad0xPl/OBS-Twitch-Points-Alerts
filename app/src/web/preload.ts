@@ -5,6 +5,8 @@ import WebSocketServer from "./WSServer";
 import AlertFront from "./AlertFront";
 import Queue, { AlertElement } from "./AlertQueue";
 import generateID from "./utils/generateid";
+import HTTPServer from "./HTTPServer";
+import { KeyObject } from "crypto";
 
 let settings = window.settings = new Settings()
 
@@ -13,6 +15,9 @@ const wss = new WebSocketServer();
 
 wss.start();
 
+const httpserver = window.httpserver =  new HTTPServer();
+httpserver.create();
+httpserver.listen();
 
 const AlertQueue = new Queue<AlertElement>();
 
@@ -31,13 +36,13 @@ function sendPath(path: string){
 wss.on("waitingForVideo", ()=>{
   if(AlertQueue.len() > 0){
     let el = AlertQueue.remove();
-    sendPath(el.filepath);
+    sendPath(`/mp4/${el.alertid}`);
   }
 })
 wss.on("ended", ()=>{
   if(AlertQueue.len() > 0){
     let el = AlertQueue.remove();
-    sendPath(el.filepath);
+    sendPath(`/mp4/${el.alertid}`);
   }
 })
 
@@ -64,7 +69,8 @@ window.addEventListener("DOMContentLoaded", () => {
   settings.bind(
     document.getElementById("settClientToken") as HTMLInputElement,
     document.getElementById("settOAuthToken") as HTMLInputElement,
-    document.getElementById("settPort") as HTMLInputElement,
+    document.getElementById("settWSPort") as HTMLInputElement,
+    document.getElementById("settHTTPPort") as HTMLInputElement,
     document.getElementById("settChannel") as HTMLInputElement,
     document.getElementById("settSave") as HTMLButtonElement,
     document.getElementById("saveAlert") as HTMLButtonElement
@@ -109,6 +115,7 @@ window.addEventListener("DOMContentLoaded", () => {
           let newid = generateID(12);
           AlertQueue.add({
             filepath: al[key].filepath,
+            alertid: key,
             id: newid,
             rewardEvent: reward
           })

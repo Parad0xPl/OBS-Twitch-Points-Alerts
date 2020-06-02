@@ -85,8 +85,12 @@
                         <input type="text" class="form-control" id="settChannel">
                     </div>
                     <div class="form-group col-12">
-                        <label for="settPort">Port</label>
-                        <input type="text" class="form-control" id="settPort">
+                        <label for="settWSPort">WS Port</label>
+                        <input type="text" class="form-control" id="settWSPort">
+                    </div>
+                    <div class="form-group col-12">
+                        <label for="settHTTPPort">HTTP Port</label>
+                        <input type="text" class="form-control" id="settHTTPPort">
                     </div>
                 </div>
                 <div class="form-group">
@@ -143,7 +147,6 @@
             return false;
         })
 
-        console.log(isSettingsHidden);
         if(!isSettingsHidden){
             col2.addClass("show");
         }
@@ -167,6 +170,6 @@
     </script>
     <script src="lib/popper.min.js"></script>
     <script src="lib/bootstrap.min.js"></script>
-    <script src="../dst/web/main.js"></script>
+    <!-- <script src="../dst/web/main.js"></script> -->
 </body>
 </html>
