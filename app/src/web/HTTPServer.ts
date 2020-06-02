@@ -1,6 +1,7 @@
 import http from "http"
 import {URL} from "url"
 import fs from "fs"
+import path from "path"
 
 function parseAccept(head: string): string[]{
     let clientAccept = head.split(";");
@@ -17,7 +18,8 @@ function parseAccept(head: string): string[]{
     return acc;
 }
 
-const playerpage: string = fs.readFileSync("./obs/index.html", "utf8");
+const playerpage: string = fs.readFileSync(
+    path.join(__dirname, "../../obs/index.html"), "utf8");
 
 export class HTTPRequest{
     private req: http.IncomingMessage;
