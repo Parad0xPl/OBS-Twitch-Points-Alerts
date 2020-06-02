@@ -24,7 +24,15 @@ function formatUrl(
 }
 
 function parseTwitchRedirect(twitchUrl: string): string{
+    if(!twitchUrl.startsWith("http://localhost")){
+        return "";
+    }
+    
     let parsed = url.parse(twitchUrl);
+
+    if(!parsed.hash){
+        return "";
+    }
     let query = querystring.parse(parsed.hash.slice(1));
     if(isString(query["access_token"])){
         return query["access_token"];
